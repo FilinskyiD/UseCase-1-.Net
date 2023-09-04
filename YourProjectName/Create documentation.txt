@@ -1,3 +1,15 @@
+Update Readme.md with  
+
+Application description: 2 paragraphs, 4-10 Sentences. 
+
+Information on how to run the developed application locally. 
+
+At least 10 examples of how to use the developed endpoint. 
+
+ChatGPT
+
+2 / 2
+
 Country API with Filtering, Sorting, and Pagination
 Application Description
 This application serves as a RESTful API, built using .NET 6 and C# 10, which fetches country data from the "REST Countries" public API. It provides enhanced functionalities like filtering by country name or population, sorting by country name in ascending or descending order, and pagination to limit the number of records. The purpose of this application is to demonstrate how to effectively implement these common API features using Minimal API in .NET Core.
