@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<CountryService>();
 
 // Add services to the container.
 builder.Services.AddSwaggerGen();
@@ -22,7 +23,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/countries", async (string? searchString, int? populationInMillions, string? sortDirection, int? num2) =>
+app.MapGet("/api/countries", async (CountryService countryService, string? searchString, int? populationInMillions, string? sortDirection, int? num2) =>
 {
     using var httpClient = new HttpClient();
     var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -36,50 +37,25 @@ app.MapGet("/api/countries", async (string? searchString, int? populationInMilli
     
     if (!string.IsNullOrEmpty(searchString))
     {
-        countries = FilterCountriesByName(countries, searchString);
+        countries = countryService.FilterCountriesByName(countries, searchString);
     }
 
     if (populationInMillions.HasValue)
     {
-        countries = FilterCountriesByPopulation(countries, populationInMillions.Value);
+        countries = countryService.FilterCountriesByPopulation(countries, populationInMillions.Value);
     }
 
     if (!string.IsNullOrEmpty(sortDirection))
     {
-        countries = SortCountriesByName(countries, sortDirection);
+        countries = countryService.SortCountriesByName(countries, sortDirection);
     }
 
     if (limit.HasValue)
     {
-        countries = LimitNumberOfRecords(countries, limit.Value);
+        countries = countryService.LimitNumberOfRecords(countries, limit.Value);
     }
 
     return Results.Ok(countries);
 }).Produces<List<Country>>(); // Adding type information for Swagger
-
-public class Country
-{
-    public string Name { get; set; }
-    public string CommonName { get; set; }
-    public long Population { get; set; }
-}
-
-public static List<Country> FilterCountriesByName(List<Country> countries, string searchString) => countries
-    .Where(country => (country.Name is not null && country.Name.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0 )
-    || (country.CommonName is not null && country.CommonName.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0))
-    .ToList();
-
-
-public static List<Country> FilterCountriesByPopulation(List<Country> countries, int populationInMillions) => countries
-    .Where(country => country.Population < populationInMillions * 1_000_000).ToList();
-
-public static List<Country> SortCountriesByName(List<Country> countries, string sortDirection) => sortDirection.ToLower() switch
-{
-    "ascend" => countries.OrderBy(country => country.Name).ToList(),
-    "descend" => countries.OrderByDescending(country => country.Name).ToList(),
-    _ => countries
-};
-
-public static List<Country> LimitNumberOfRecords(List<Country> countries, int limit) => countries.Take(limit).ToList();
 
 app.Run();
