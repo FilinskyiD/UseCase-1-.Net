@@ -1,0 +1,33 @@
+How to bind  SonarCloud.io to created repository.
+
+As of my last update in September 2021, binding a repository to SonarCloud.io involves several steps. SonarCloud is a cloud-based code quality and security service that works well with various programming languages and integrates smoothly with various version control systems like GitHub, GitLab, and Azure DevOps.
+
+Below are the generalized steps to bind a repository to SonarCloud:
+
+### Step 1: Sign in to SonarCloud
+
+First, go to [SonarCloud](https://sonarcloud.io/) and sign in using your GitHub, GitLab, or Azure DevOps account. If you have not already created an account on SonarCloud, you will need to do so.
+
+### Step 2: Add an Organization
+
+- After signing in, you may need to create an organization (or select an existing one). This organization will be the entity under which your projects/repositories will live. Typically, you'd sync this with your GitHub, GitLab, or Azure DevOps organization, although it's not strictly necessary.
+
+### Step 3: Add Project/Repository
+
+1. Click on `+` (plus) icon on the top right corner of the screen and select `Analyze new project`.
+2. You will be prompted to choose the organization and then see a list of repositories available for that organization.
+3. Choose the repository you want to analyze and click on "Set Up" button next to it.
+  
+### Step 4: Configure Analysis
+
+SonarCloud will provide you with some code snippets that you need to run in your CI/CD pipeline to perform the actual analysis. This varies depending on the language and build tool you're using. Follow the instructions to set this up.
+
+### Step 5: Run Analysis
+
+Once everything is set up, every new push to your repository (or per your CI/CD configuration) will trigger a new SonarCloud analysis. You'll be able to see the results in your SonarCloud dashboard, including metrics like code smells, bugs, security vulnerabilities, and test coverage.
+
+### Step 6: Review and Improve
+
+Review the analysis results in the SonarCloud dashboard and start making improvements to your code based on the feedback.
+
+**Note**: These are general steps; the specific details might vary based on your build and deployment setup, and also SonarCloud's features might have been updated after my last training data in September 2021. Make sure to consult the most up-to-date documentation for the best guidance.
