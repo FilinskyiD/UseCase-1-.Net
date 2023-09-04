@@ -1,0 +1,142 @@
+Allowed to use only: .NET 6 SDK, C#10, ASP.NET Core WebAPI/Minimal API, Extrenal public "REST Countries" API. 
+Create the endpoint that accepts parameters.
+Endpoint could accept from 0 to 4 parameters, type string, number, string. Naming is optional. (Swagger is enough here) 
+Make a request to the public `REST Countries` API using endpoint https://restcountries.com/v3.1/all 
+Parse retrieved API response data in JSON to variable/object. 
+
+
+Certainly! To accomplish the task you've outlined, you'll need to create a new ASP.NET Core WebAPI project and then follow the steps below:
+
+Install the necessary packages like System.Net.Http.Json for making HTTP requests and deserializing JSON data.
+
+Create the model classes based on the structure of the REST Countries API response.
+
+Create a controller with an endpoint that accepts up to 4 parameters.
+
+Use an HttpClient to fetch data from the REST Countries API, and then parse the JSON response into a variable/object.
+
+Here is a simplified example:
+
+csharp
+Copy code
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+
+// Define a class to represent a country.
+public class Country
+{
+    public string Name { get; set; }
+    public string Alpha2Code { get; set; }
+    public string Alpha3Code { get; set; }
+    public IEnumerable<string> Borders { get; set; }
+}
+
+[ApiController]
+public class CountryController : ControllerBase
+{
+    private readonly HttpClient _httpClient;
+
+    public CountryController()
+    {
+        _httpClient = new HttpClient();
+    }
+
+    [HttpGet("api/countries")]
+    public async Task<IActionResult> GetCountries(
+        [FromQuery] string str1 = null, 
+        [FromQuery] int num1 = 0, 
+        [FromQuery] string str2 = null, 
+        [FromQuery] int num2 = 0)
+    {
+        // Make the HTTP request to the REST Countries API
+        var response = await _httpClient.GetAsync("https://restcountries.com/v3.1/all");
+        if (!response.IsSuccessStatusCode)
+        {
+            return BadRequest("Could not retrieve countries");
+        }
+
+        // Parse the JSON response
+        var countries = await response.Content.ReadFromJsonAsync<List<Country>>();
+
+        // Here, you can use str1, num1, str2, num2 to filter or manipulate the countries list
+        // ...
+
+        return Ok(countries);
+    }
+}
+Note: Before running the project, make sure you've added the necessary using directive for JSON extension methods for HttpClient, which should be added automatically if you're using .NET 6 SDK.
+
+Finally, for Swagger support, make sure to update the Configure method in Startup.cs or Program.cs to include the Swagger middleware. You can do this using the following:
+
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+
+This example should be a good starting point for your requirements. Note that I haven't done any detailed error handling or logging, both of which you would likely want to include in a more complete implementation.
+
+
+
+Convert to Minimal API
+
+Certainly! You can achieve the same functionality using the Minimal API features available in .NET 6. Here is an example:
+
+Firstly, add the NuGet package for System.Net.Http.Json if you haven't already, so you can easily make HTTP requests and work with JSON.
+
+Now, update your Program.cs:
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Net.Http.Json;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+}
+
+app.UseHttpsRedirection();
+
+app.MapGet("/api/countries", async (string? str1, int? num1, string? str2, int? num2) =>
+{
+    using var httpClient = new HttpClient();
+    var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
+    
+    if (!response.IsSuccessStatusCode)
+    {
+        return Results.BadRequest("Could not retrieve countries");
+    }
+
+    var countries = await response.Content.ReadFromJsonAsync<List<Country>>();
+    
+    // Here, you can use str1, num1, str2, num2 to filter or manipulate the countries list
+    // ...
+
+    return Results.Ok(countries);
+}).Produces<List<Country>>(); // Adding type information for Swagger
+
+public class Country
+{
+    public string Name { get; set; }
+    public string Alpha2Code { get; set; }
+    public string Alpha3Code { get; set; }
+    public IEnumerable<string> Borders { get; set; }
+}
+
+app.Run();
+
+This version of the program uses a Minimal API approach, where you define routes as lambda functions right in the Program.cs file. I've used the MapGet method to specify that this is a GET endpoint and that it takes up to four parameters.
+
+For Swagger, you can still use the same middleware as before. Make sure to include the necessary NuGet package for Swagger.
+
+Remember that I didn't add much error handling or logging, which you would likely want to include in a production application.
