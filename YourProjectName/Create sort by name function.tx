@@ -1,3 +1,12 @@
+
+Update by Create a function that accepts a string as an attribute and can sort data by ` name/common `.  
+
+The sort should accept string ` ascend or descend ` and sort countries name by provided attribute (e.g. providing attribute ascend all countries should be sorted from A to Z) 
+ChatGPT
+You can add a function that sorts the list of countries by their Name or CommonName based on a given sorting direction ('ascend' or 'descend'). You can then integrate this function within your existing API route. Here's how you can do it:
+
+csharp
+Copy code
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
@@ -69,15 +78,31 @@ public static List<Country> FilterCountriesByName(List<Country> countries, strin
     ).ToList();
 }
 
-public static List<Country> FilterCountriesByPopulation(List<Country> countries, int populationInMillions) => countries
-    .Where(country => country.Population < populationInMillions * 1_000_000).ToList();
-
-public static List<Country> SortCountriesByName(List<Country> countries, string sortDirection) => sortDirection.ToLower() switch
+public static List<Country> FilterCountriesByPopulation(List<Country> countries, int populationInMillions)
 {
-    "ascend" => countries.OrderBy(country => country.Name).ToList(),
-    "descend" => countries.OrderByDescending(country => country.Name).ToList(),
-    _ => countries
-};
+    return countries.Where(country => country.Population < populationInMillions * 1_000_000).ToList();
+}
 
+public static List<Country> SortCountriesByName(List<Country> countries, string sortDirection)
+{
+    if (sortDirection.ToLower() == "ascend")
+    {
+        return countries.OrderBy(country => country.Name).ToList();
+    }
+    else if (sortDirection.ToLower() == "descend")
+    {
+        return countries.OrderByDescending(country => country.Name).ToList();
+    }
+    else
+    {
+        // If an invalid sortDirection is provided, return the list as-is.
+        return countries;
+    }
+}
 
 app.Run();
+I've added a function called SortCountriesByName that sorts the list of countries based on the Name property. The function takes the list of countries and a string (sortDirection) to determine the sort direction.
+
+The lambda function for the /api/countries route now accepts an additional optional string parameter sortDirection to apply this sorting, and I've included a call to SortCountriesByName to perform the sorting if this parameter is provided.
+
+Now, you can provide the sortDirection parameter with either 'ascend' or 'descend' to sort the countries alphabetically by their Name.
