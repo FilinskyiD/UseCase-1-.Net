@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
 using System.Linq;
+using YourProjectName;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<CountryService>();
@@ -23,7 +24,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/countries", async (CountryService countryService, string? searchString, int? populationInMillions, string? sortDirection, int? num2) =>
+app.MapGet("/api/countries", async (CountryService countryService, string? searchString, int? populationInMillions, string? sortDirection, int? limit) =>
 {
     using var httpClient = new HttpClient();
     var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");

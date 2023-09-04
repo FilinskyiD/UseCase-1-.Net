@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 using System.Net.Http.Json;
 using System.Linq;
 
-public class Country
+namespace YourProjectName
 {
-	public string Name { get; set; }
-	public string CommonName { get; set; }
-	public long Population { get; set; }
+    public class Country
+    {
+        public string? Name { get; set; }
+        public string? CommonName { get; set; }
+        public long Population { get; set; }
+    }
 }

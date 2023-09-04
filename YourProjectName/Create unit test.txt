@@ -1,0 +1,93 @@
+Create Unit tests for all 4 functions (filter, filter, sort, pagination) created earlier.
+ChatGPT
+To unit test the methods in the CountryService class, you can use a testing framework like xUnit. First, you would add a reference to the xUnit NuGet package to your test project, and then you'd also reference your main project to access the Country and CountryService classes.
+
+Here are sample unit tests for the four methods (FilterCountriesByName, FilterCountriesByPopulation, SortCountriesByName, LimitNumberOfRecords) in your CountryService class.
+
+csharp
+Copy code
+using System.Collections.Generic;
+using Xunit;
+
+namespace YourNamespace.Tests
+{
+    public class CountryServiceTests
+    {
+        private readonly CountryService _countryService;
+
+        public CountryServiceTests()
+        {
+            _countryService = new CountryService();
+        }
+
+        [Fact]
+        public void TestFilterCountriesByName()
+        {
+            var countries = new List<Country> 
+            {
+                new Country { Name = "Estonia", CommonName = "Estonia", Population = 1320000 },
+                new Country { Name = "Spain", CommonName = "Spain", Population = 47000000 },
+                new Country { Name = "Australia", CommonName = "Australia", Population = 25000000 }
+            };
+
+            var result = _countryService.FilterCountriesByName(countries, "st");
+            Assert.Single(result);
+            Assert.Equal("Estonia", result[0].Name);
+        }
+
+        [Fact]
+        public void TestFilterCountriesByPopulation()
+        {
+            var countries = new List<Country> 
+            {
+                new Country { Name = "Estonia", CommonName = "Estonia", Population = 1320000 },
+                new Country { Name = "Spain", CommonName = "Spain", Population = 47000000 },
+                new Country { Name = "Australia", CommonName = "Australia", Population = 25000000 }
+            };
+
+            var result = _countryService.FilterCountriesByPopulation(countries, 15);
+            Assert.Single(result);
+            Assert.Equal("Estonia", result[0].Name);
+        }
+
+        [Fact]
+        public void TestSortCountriesByName()
+        {
+            var countries = new List<Country> 
+            {
+                new Country { Name = "Spain", CommonName = "Spain", Population = 47000000 },
+                new Country { Name = "Australia", CommonName = "Australia", Population = 25000000 },
+                new Country { Name = "Estonia", CommonName = "Estonia", Population = 1320000 }
+            };
+
+            var result = _countryService.SortCountriesByName(countries, "ascend");
+            Assert.Equal("Australia", result[0].Name);
+            Assert.Equal("Estonia", result[1].Name);
+            Assert.Equal("Spain", result[2].Name);
+        }
+
+        [Fact]
+        public void TestLimitNumberOfRecords()
+        {
+            var countries = new List<Country> 
+            {
+                new Country { Name = "Spain", CommonName = "Spain", Population = 47000000 },
+                new Country { Name = "Australia", CommonName = "Australia", Population = 25000000 },
+                new Country { Name = "Estonia", CommonName = "Estonia", Population = 1320000 }
+            };
+
+            var result = _countryService.LimitNumberOfRecords(countries, 2);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("Spain", result[0].Name);
+            Assert.Equal("Australia", result[1].Name);
+        }
+    }
+}
+In these tests:
+
+We instantiate a new CountryService object.
+We set up some mock countries data to pass into the methods.
+We run the methods and check the output against the expected output using Assert methods from xUnit.
+Don't forget to add the Country class to the test project if it's not accessible.
+
+To run these tests, you'd typically use a test runner that's integrated into your development environment, or you can run them from the command line using a tool like dotnet test.
