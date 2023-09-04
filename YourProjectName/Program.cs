@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/countries", async (string? str1, int? num1, string? str2, int? num2) =>
+app.MapGet("/api/countries", async (string? searchString, int? num1, string? str2, int? num2) =>
 {
     using var httpClient = new HttpClient();
     var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -33,19 +34,31 @@ app.MapGet("/api/countries", async (string? str1, int? num1, string? str2, int? 
 
     var countries = await response.Content.ReadFromJsonAsync<List<Country>>();
 
-    // Here, you can use str1, num1, str2, num2 to filter or manipulate the countries list
+    if (!string.IsNullOrEmpty(searchString))
+    {
+        countries = FilterCountriesByName(countries, searchString);
+    }
+
+    // Here, you can use num1, str2, num2 to further filter or manipulate the countries list
     // ...
 
     return Results.Ok(countries);
 }).Produces<List<Country>>(); // Adding type information for Swagger
 
-
-app.Run();
-
 public class Country
 {
     public string Name { get; set; }
-    public string Alpha2Code { get; set; }
-    public string Alpha3Code { get; set; }
-    public IEnumerable<string> Borders { get; set; }
+    public string CommonName { get; set; }
 }
+
+public static List<Country> FilterCountriesByName(List<Country> countries, string searchString)
+{
+    return countries.Where(country =>
+        country.Name != null &&
+        country.Name.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+        country.CommonName != null &&
+        country.CommonName.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0
+    ).ToList();
+}
+
+app.Run();
