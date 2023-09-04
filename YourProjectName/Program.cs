@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/countries", async (string? searchString, int? num1, string? str2, int? num2) =>
+app.MapGet("/api/countries", async (string? searchString, int? populationInMillions, string? str2, int? num2) =>
 {
     using var httpClient = new HttpClient();
     var response = await httpClient.GetAsync("https://restcountries.com/v3.1/all");
@@ -39,7 +39,12 @@ app.MapGet("/api/countries", async (string? searchString, int? num1, string? str
         countries = FilterCountriesByName(countries, searchString);
     }
 
-    // Here, you can use num1, str2, num2 to further filter or manipulate the countries list
+    if (populationInMillions.HasValue)
+    {
+        countries = FilterCountriesByPopulation(countries, populationInMillions.Value);
+    }
+
+    // Here, you can use str2, num2 to further filter or manipulate the countries list
     // ...
 
     return Results.Ok(countries);
@@ -49,6 +54,7 @@ public class Country
 {
     public string Name { get; set; }
     public string CommonName { get; set; }
+    public long Population { get; set; }
 }
 
 public static List<Country> FilterCountriesByName(List<Country> countries, string searchString)
@@ -59,6 +65,11 @@ public static List<Country> FilterCountriesByName(List<Country> countries, strin
         country.CommonName != null &&
         country.CommonName.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0
     ).ToList();
+}
+
+public static List<Country> FilterCountriesByPopulation(List<Country> countries, int populationInMillions)
+{
+    return countries.Where(country => country.Population < populationInMillions * 1_000_000).ToList();
 }
 
 app.Run();
