@@ -49,6 +49,11 @@ app.MapGet("/api/countries", async (string? searchString, int? populationInMilli
         countries = SortCountriesByName(countries, sortDirection);
     }
 
+    if (limit.HasValue)
+    {
+        countries = LimitNumberOfRecords(countries, limit.Value);
+    }
+
     return Results.Ok(countries);
 }).Produces<List<Country>>(); // Adding type information for Swagger
 
@@ -59,15 +64,11 @@ public class Country
     public long Population { get; set; }
 }
 
-public static List<Country> FilterCountriesByName(List<Country> countries, string searchString)
-{
-    return countries.Where(country => 
-        country.Name != null && 
-        country.Name.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-        country.CommonName != null && 
-        country.CommonName.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0
-    ).ToList();
-}
+public static List<Country> FilterCountriesByName(List<Country> countries, string searchString) => countries
+    .Where(country => (country.Name is not null && country.Name.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0 )
+    || (country.CommonName is not null && country.CommonName.IndexOf(searchString, System.StringComparison.OrdinalIgnoreCase) >= 0))
+    .ToList();
+
 
 public static List<Country> FilterCountriesByPopulation(List<Country> countries, int populationInMillions) => countries
     .Where(country => country.Population < populationInMillions * 1_000_000).ToList();
@@ -79,5 +80,6 @@ public static List<Country> SortCountriesByName(List<Country> countries, string 
     _ => countries
 };
 
+public static List<Country> LimitNumberOfRecords(List<Country> countries, int limit) => countries.Take(limit).ToList();
 
 app.Run();
